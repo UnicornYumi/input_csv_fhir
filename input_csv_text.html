@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="csvData"></div>
+    <div id="jsonData"></div>
+</body>
+<script>
+    function csvToJson(csv) {
+    const lines = csv.split('\n');
+    const result = [];
+    const headers = lines[0].split(',');
+
+    for (let i = 1; i < lines.length; i++) {
+        const obj = {};
+        const currentLine = lines[i].split(',');
+
+        for (let j = 0; j < headers.length; j++) {
+            obj[headers[j]] = currentLine[j];
+        }
+
+        result.push(obj);
+    }
+
+    return result;
+}
+
+    // 示例CSV数据
+    const csvData = `Name,Age,Location
+    John,25,New York
+    Alice,30,Los Angeles
+    Bob,35,Chicago`;
+
+    // 转换为JSON格式
+    const jsonData = csvToJson(csvData);
+    console.log(jsonData);
+ 
+    // 在HTML页面中展示结果
+    document.getElementById('csvData').innerText = 'CSV Data:\n\n' + csvData;
+    document.getElementById('jsonData').innerText = '\nJSON Data:\n\n' + JSON.stringify(jsonData, null, 4);
+</script>
+
+</html>
+
+

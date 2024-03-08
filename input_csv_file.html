@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV to JSON</title>
+</head>
+<body>
+    打開一個CSV格式的檔案：<input type="file" id="csvFileInput">
+    <div id="csvData"></div>
+    <br>
+    轉換成JSON格式：<button onclick="handleFile()">Convert to JSON</button>
+    <div id="jsonData"></div>
+
+    <script>
+        //csv格式轉JSON格式的function
+        function csvToJson(csv) {
+            const lines = csv.split('\n');
+            const result = [];
+            const headers = lines[0].split(',');
+
+            for (let i = 1; i < lines.length; i++) {
+                const obj = {};
+                const currentLine = lines[i].split(',');
+
+                for (let j = 0; j < headers.length; j++) {
+                    obj[headers[j]] = currentLine[j];
+                }
+
+                result.push(obj);
+            }
+
+            return result;
+        }
+
+        //處理csv文件
+        function handleFile() {
+            const fileInput = document.getElementById('csvFileInput');
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                const csv = event.target.result;  //讀取csv數據
+                const jsonData = csvToJson(csv);  //呼叫csvToJson function
+                document.getElementById('csvData').innerText = '\nCSV Data:\n\n' + csv;
+                document.getElementById('jsonData').innerText = '\nJSON Data:\n\n' + JSON.stringify(jsonData, null, 4);
+            };
+
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
