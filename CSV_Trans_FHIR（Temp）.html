@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exc_Trans_FHIR</title>
+    <style>
+        .styledTextBox {
+            margin-top: 10px;
+            padding: 10px; /* 指定文本框内边距 */
+            border: 2px solid #007bff; /* 设置边框样式和颜色 */
+            border-radius: 10px; /* 设置圆角边框 */
+            background-color: #f0f0f0; /* 设置背景颜色 */
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    Patient ID：<input type="text" id="IDInput" placeholder="Enter Patient ID here">
+    <br><br>
+    Open the file of body temperature：<input type="file" id="csvFileInput">
+    <button onclick="handleCSV()">SHOW CSV DATA</button>
+    <div id="csvData" class="styledTextBox"></div>
+    <br>
+    Trans FHIR：<button onclick="handleFile()">Convert to FHIR</button>
+    <div id="jsonData" class="styledTextBox"></div>
+
+    <script>
+        //csv格式轉FHIR格式的function
+        function csvToFHIR(csv) {
+            const lines = csv.split('\n');
+            const observations = [];
+            const patientReference = 'Patient/' + document.getElementById('IDInput').value;; // 患者的FHIR引用
+
+            for (let i = 1; i < lines.length-1; i++) {
+                const currentLine = lines[i].split(',');
+                const observation = {
+                    "resourceType": "Observation",
+                    "status": "final",
+                    "category": [{
+                        "coding": [{
+                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                            "code": "vital-signs",
+                            "display": "Vital Signs"
+                        }]
+                    }],
+                    "code": {
+                        "coding": [{
+                            "system": "http://loinc.org",
+                            "code": "8310-5",
+                            "display": "Body temperature"
+                        }]
+                    },
+                    "subject": {
+                        "reference": patientReference // 引用患者
+                    },
+                    "effectiveDateTime": currentLine[0], // 日期
+                    "valueQuantity": {
+                        "value": currentLine[1], // 体温
+                        "unit": "C",
+                        "system": "http://unitsofmeasure.org",
+                        "code": "Cel"
+                    }
+                };
+
+                observations.push(observation);
+            }
+
+            return observations;
+        }   
+
+        //處理csv文件
+        function handleCSV() {
+            const fileInput = document.getElementById('csvFileInput');
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                const csv = event.target.result;
+                document.getElementById('csvData').innerText = 'CSV Data:\n' + csv;
+            };
+
+            reader.readAsText(file);
+        }
+
+        //並轉換FHIR格式輸出
+        function handleFile() {
+            const fileInput = document.getElementById('csvFileInput');
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                const csv = event.target.result;
+                const fhirData = csvToFHIR(csv);
+                document.getElementById('jsonData').innerText = 'FHIR JSON Data:\n' + JSON.stringify(fhirData, null, 4);
+            };
+
+            reader.readAsText(file);
+        }
+
+    
+
+    </script>
+</body>
+</html>
